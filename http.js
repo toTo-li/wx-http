@@ -7,11 +7,11 @@ const {
 } = require('./util');
 
 let defaultOption = {
-    method:'get',
-    contentType:'application/json',
-    loading:true,
-    header:{},
-    timeout:20000
+    method: 'get',
+    contentType: 'application/json',
+    loading: true,
+    header: {},
+    timeout: 20000
 };
 
 let sum = 0;
@@ -33,7 +33,7 @@ const requestHttp = (mergeOption) => {
     logger.info('request -> options:', mergeOption);
 
     ++sum;
-    if(loading){
+    if (loading) {
         wx.showLoading({
             title: '努力加载中...'
         });
@@ -53,9 +53,11 @@ const requestHttp = (mergeOption) => {
                 if (isSuccess) {
                     logger.success('response -> url:', url);
                     logger.success('response -> data:', res.data);
-                    let filterData = filter && filter(Object.assign(res.data, { succeed: true }))
+                    let filterData = filter && filter(Object.assign(res.data, {
+                        succeed: true
+                    }))
                     resolve(filterData);
-                }else{
+                } else {
                     reject(new Error(`网络错误:状态码为${res.statusCode}`))
                 }
             },
@@ -67,16 +69,18 @@ const requestHttp = (mergeOption) => {
                     icon: 'none',
                     duration: 3000
                 });
-                resolve(Object.assign(res, { succeed: false }));
+                resolve(Object.assign(res, {
+                    succeed: false
+                }));
             },
             complete: () => {
                 --sum;
-                if(sum == 0 && loading){
+                if (sum == 0 && loading) {
                     wx.hideLoading()
                 }
             }
         })
-    }).catch((error)=>{
+    }).catch((error) => {
         wx.showToast({
             title: '网络异常,请稍后再试',
             icon: 'none',
@@ -86,7 +90,7 @@ const requestHttp = (mergeOption) => {
     });
 }
 
-function Http(config){
+function Http(config) {
     let {
         baseUrl,
         getCookie,
@@ -94,59 +98,63 @@ function Http(config){
     } = config;
 
     this.baseUrl = baseUrl;
-    this.filter = filter || ((res)=>{
+    this.filter = filter || ((res) => {
         return res;
     });
-    
-    this.getCookie = getCookie || (()=>{
+
+    this.getCookie = getCookie || (() => {
         let cookie = ''
         try {
-            const { keys } = wx.getStorageInfoSync();
+            const {
+                keys
+            } = wx.getStorageInfoSync();
             keys.forEach(item => {
-                if(wx.getStorageSync(item)){
+                if (wx.getStorageSync(item)) {
                     cookie += `${item}=${wx.getStorageSync(item)};`
                 }
             })
-            } catch (e) {
-                logger.error('http -> getCookie -> error: ', e.message)
-            }
+        } catch (e) {
+            logger.error('http -> getCookie -> error: ', e.message)
+        }
         return cookie;
     });
 }
 
-Http.prototype.request =  function (options){
+Http.prototype.request = function (options) {
 
     let customOption = {
         filter: this.filter
     };
-    
+
     let {
         url,
         format = 'json'
     } = options;
 
     let header = {};
-    if(this.getCookie()){
-        header = Object.assign(header,{
-            'Cookie' : this.getCookie()
-        }) ;
+    if (this.getCookie()) {
+        header = Object.assign(header, {
+            'Cookie': this.getCookie()
+        });
     }
 
-    customOption.header = Object.assign(header,{
+    customOption.header = Object.assign(header, {
         'Content-Type': getContentType(format)
     });
 
-    if(!isHttpProtocol(url)){
+    if (!isHttpProtocol(url)) {
         customOption.url = `${this.baseUrl}${url}`;
     }
 
-    return requestHttp(Object.assign(defaultOption, options ,customOption));
+    return requestHttp(Object.assign(defaultOption, options, customOption));
 }
 
-let DefalutMethods = ['get','post'];
-DefalutMethods.forEach((method)=>{
-    Http.prototype[method.toLowerCase()] = function(url,config){
-        return this.request(Object.assign({ data:{} }, config ,{
+let DefalutMethods = ['get', 'post'];
+DefalutMethods.forEach((method) => {
+    Http.prototype[method.toLowerCase()] = function (url, config) {
+        return this.request(Object.assign({
+            data: {}
+        }, config, {
             url,
             method
         }));

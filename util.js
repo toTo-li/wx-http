@@ -118,6 +118,25 @@ const extend = function (a, b, thisArg) {
     return a
 }
 
+const queryString = {
+    stringify(obj) {
+        let str = ''
+        if (isEmptyObj(obj)) return str
+        for (const key in obj) {
+            str += `${key}=${obj[key]}`
+        }
+        return str
+    }
+}
+/**
+ * 获取当前页的page对象
+ */
+function getCurrentPage() {
+    const pages = getCurrentPages() // 获取加载的页面
+    const currentPage = pages[pages.length - 1] // 获取当前页面的对象
+    return currentPage
+}
+
 module.exports = {
     isSuccessStatus,
     isHttpProtocol,
@@ -125,5 +144,7 @@ module.exports = {
     getValueByFormat,
     getContentType,
     bind,
-    extend
+    extend,
+    queryString,
+    getCurrentPage
 }
