@@ -15,6 +15,7 @@ let defaultOption = {
 };
 
 let sum = 0;
+
 // 封装请求 携带cookie
 const requestHttp = (mergeOption) => {
     let {
